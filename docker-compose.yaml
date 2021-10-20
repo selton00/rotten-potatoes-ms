@@ -1,0 +1,72 @@
+version: '3.8'
+
+volumes:
+  mongo_vol:
+  postgres_vol:
+  
+networks:
+  movies_net:
+  review_net:
+  mongodb_net:
+  postgres_net:
+
+services:
+  rotten:
+    image: seltonlucas/rotten-potatoes-ms:v1
+    ports: 
+      - 5000:5000
+    networks:
+      - movies_net
+      - review_net
+    environment:
+      MOVIE_SERVICE_URI: http://movies:8181
+      REVIEW_SERVICE_URI: http://review:8282
+
+  movies:
+    image: seltonlucas/movies:v1
+    ports:
+      - 8181:8181
+    networks:
+      - movies_net
+      - mongodb_net
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_URI: mongodb://mongouser:mongopwd@localhost:27017/admin
+
+  mongodb:
+    image: mongo:4.4.3
+    ports:
+      - 27017:27017
+    networks:
+      - mongo_net
+    volumes:
+      - mongo_vol:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongouser
+      MONGO_INITDB_ROOT_PASSWORD: mongopwd
+
+  review:
+    image: seltonlucas/review:v1
+    ports:
+      - 8282:8282
+    networks:
+      - review_net
+      - postgres_net
+    depends_on:
+      - postgressql
+    environment:
+      ConnectionStrings__MyConnection: Host=postgressql;Database=pguser;Username=pguser;Password=postgrespwd;
+
+  postgressql:
+    image: postgres:14.0
+    ports:
+      - 5432:5432
+    networks:
+      - postgres_net
+    volumes:
+      - postgres_vol:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB:  pguser
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: postgrespwd
