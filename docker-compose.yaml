@@ -39,7 +39,7 @@ services:
     ports:
       - 27017:27017
     networks:
-      - mongo_net
+      - mongodb_net
     volumes:
       - mongo_vol:/data/db
     environment:
