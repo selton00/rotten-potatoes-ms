@@ -1,4 +1,4 @@
-name: CI-CD
+name: Docker image
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - name: Docker Login
         uses: docker/login-action@v1.10.0
         with:
-          username: ${{ secrets.DOCKERHUB_USER }}
+          username: seltonlucas
           password: ${{ secrets.DOCKERHUB_PWD }}
       - name: Docker Build and Push
         uses: docker/build-push-action@v2.7.0
